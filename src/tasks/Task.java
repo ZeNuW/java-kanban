@@ -43,8 +43,8 @@ public class Task {
         String result = "tasks.Task " + id + " {" +
                 "name='" + name + '\'';
             result = result + ", description=" + description;
-        result = result + ", status=" + status + "}\n";
-        return result;
+        result = result + ", status=" + status + "}";
+        return result + "\n";
     }
 
     @Override
@@ -52,12 +52,11 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name)
-                && Objects.equals(description, task.description) && Objects.equals(status, task.status);
+        return Objects.equals(name, task.name) && Objects.equals(description, task.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, status, id);
+        return Objects.hash(name, description);
     }
 }

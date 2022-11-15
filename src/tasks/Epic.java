@@ -50,8 +50,7 @@ public class Epic extends Task {
                 "name='" + name + '\'';
         result = result + ", description=" + description;
         result = result + ", status=" + status + '}';
-
-        return result;
+        return result + "\n";
     }
 
     @Override

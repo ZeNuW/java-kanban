@@ -45,6 +45,7 @@ public class Manager {
                 subtasks.get(subtask.getId()).setName(subtask.getName());
                 subtasks.get(subtask.getId()).setDescription(subtask.getDescription());
                 subtasks.get(subtask.getId()).setStatus(subtask.getStatus());
+                epics.get(subtask.getEpicId()).epicStatus();
             } catch (NullPointerException e) {
                 System.out.println("Подзадачи с таким номером не существует");
             }

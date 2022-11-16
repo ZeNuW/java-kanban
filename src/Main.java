@@ -57,7 +57,11 @@ public class Main {
                             description = scanner.nextLine();
                             System.out.println("Введите статус задачи");
                             status = scanner.nextLine();
-                            manager.updateTask(new Task(name, description, status));
+                            Task testTask = new Task(name, description, status);
+                            System.out.println("Введите номер задачи");
+                            identifier = Integer.parseInt(scanner.nextLine());
+                            testTask.setId(identifier);
+                            manager.updateTask(testTask);
                             break;
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");

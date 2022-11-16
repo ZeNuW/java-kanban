@@ -1,6 +1,7 @@
 package manager;
 
 import tasks.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,63 +23,44 @@ public class Manager {
         return new ArrayList<>(epics.values());
     }
 
-    public void updateTask(Task task) {
+    public void updateTask(Task task) { //предполагая, что на вход приходит Task с заданным id и во входных данных нет ошибок
         if (tasks.size() == 0) {
-            System.out.println("Списки задач пустые, перед обновлением нужно сначала загрузить списки");
+            System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
-            for (Task tsk : tasks.values()) {
-                if (tsk.equals(task)) {
-                    task.setId(tsk.getId());
-                    tasks.put(task.getId(),task);
-                    System.out.println("Задача №" + tsk.getId() + " обновлена");
-                    return;
-                }
+            try {
+                tasks.get(task.getId()).setName(task.getName());
+                tasks.get(task.getId()).setDescription(task.getDescription());
+                tasks.get(task.getId()).setStatus(task.getStatus());
+            } catch (NullPointerException e) {
+                System.out.println("Задачи с таким номером не существует");
             }
-            System.out.println("Невозможно обновить несуществующую задачу");
         }
     }
 
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) { //предполагая, что на вход приходит Subtask с заданным id и во входных данных нет ошибок
         if (subtasks.size() == 0) {
-            System.out.println("Списки подзадач пустые, перед обновлением нужно сначала загрузить списки");
+            System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
-            for (Subtask sbt: subtasks.values()) {
-                if (sbt.equals(subtask)) {
-                    subtask.setId(sbt.getId());
-                    subtasks.put(subtask.getId(),subtask);
-                    epics.get(subtask.getEpicId()).getSubtasks().put(subtask.getId(),subtask);
-                    epics.get(subtask.getEpicId()).epicStatus();
-                    System.out.println("Подзадача №" + subtask.getId() + " обновлена");
-                    return;
-                }
+            try {
+                subtasks.get(subtask.getId()).setName(subtask.getName());
+                subtasks.get(subtask.getId()).setDescription(subtask.getDescription());
+                subtasks.get(subtask.getId()).setStatus(subtask.getStatus());
+            } catch (NullPointerException e) {
+                System.out.println("Подзадачи с таким номером не существует");
             }
-            System.out.println("Невозможно обновить несуществующую подзадачу");
         }
     }
 
-    public void updateEpics(Epic epic) {
-        /* Не совсем понял назначение этого метода, статус менять он не должен, т.к. статус меняется в других ситуациях.
-        Но и не могу изменить список подзадач принадлежащих этому эпику, потому что их нет в конструкторе и я их не передаю.
-        Если это изменить, то получается противоречие с ТЗ, т.к. я должен иметь возможность создавать пустой эпик
-        Да и просто логика работы нарушиться, если я всё правильно подумал. :)
-        Ну а в таком виде, он либо ничего не делает т.е. заменяет эпик абсолютно аналогичным эпиком без подзадач
-        либо выдаёт ошибку о не существовании такого эпика
-        Опять много слов: Вопрос в том, что должен обновлять в эпике этот метод.
-        У меня есть предположение основанное на ТЗ, что он должен изменять как раз таки статус, но тогда выходит он мне не нужен.
-        Ведь статус я меняю методом в самом классе Epic */
+    public void updateEpics(Epic epic) { //предполагая, что на вход приходит Epic с заданным id и во входных данных нет ошибок
         if (epics.size() == 0) {
             System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
-            for (Epic epc : epics.values()) {
-                if (epc.equals(epic)) {
-                    epic.setId(epc.getId());
-                    epics.put(epic.getId(), epic);
-                    epics.get(epic.getId()).epicStatus();
-                    System.out.println("Эпик №" + epic.getId() + " обновлен");
-                    return;
-                }
+            try {
+                epics.get(epic.getId()).setName(epic.getName());
+                epics.get(epic.getId()).setDescription(epic.getDescription());
+            } catch (NullPointerException e) {
+                System.out.println("Эпика с таким номером не существует");
             }
-            System.out.println("Невозможно обновить несуществующий эпик");
         }
     }
 
@@ -87,8 +69,8 @@ public class Manager {
             System.out.println("Задача не добавлена т.к некорректно введён статус задачи");
         } else {
             identifier++;
+            task.setId(identifier);
             tasks.put(identifier, task);
-            tasks.get(identifier).setId(identifier);
         }
     }
 
@@ -96,18 +78,22 @@ public class Manager {
         if (subtask.getStatus() == null) {
             System.out.println("Подзадача не добавлена т.к некорректно введён статус подзадачи");
         } else {
-            identifier++;
-            subtasks.put(identifier, subtask);
-            subtasks.get(identifier).setId(identifier);
-            epics.get(subtask.getEpicId()).addSubtask(identifier, subtask);
-            epics.get(subtask.getEpicId()).epicStatus();
+            if (epics.get(subtask.getEpicId()) != null) {
+                identifier++;
+                subtasks.put(identifier, subtask);
+                subtasks.get(identifier).setId(identifier);
+                epics.get(subtask.getEpicId()).addSubtask(identifier, subtask);
+                epics.get(subtask.getEpicId()).epicStatus();
+            } else {
+                System.out.println("Эпика с таким идентификатором не существует.");
+            }
         }
     }
 
     public void addNewEpic(Epic epic) {
         identifier++;
+        epic.setId(identifier);
         epics.put(identifier, epic);
-        epics.get(identifier).setId(identifier);
     }
 
     public void deleteTasks() {
@@ -130,31 +116,25 @@ public class Manager {
         System.out.println("Все эпики удалены");
     }
 
-    public Task findTasksByIdentifier(int identifier) { //верно
-        if (tasks.get(identifier) != null) {
-            return (tasks.get(identifier));
-        } else {
+    public Task findTasksByIdentifier(int identifier) {
+        if (tasks.get(identifier) == null) {
             System.out.println("Задачи с таким идентификатором не существует");
-            return null;
         }
+        return tasks.get(identifier);
     }
 
     public Subtask findSubtasksByIdentifier(int identifier) {
-        if (subtasks.get(identifier) != null) {
-            return subtasks.get(identifier);
-        } else {
+        if (subtasks.get(identifier) == null) {
             System.out.println("Подзадачи с таким идентификатором не существует");
-            return null;
         }
+        return subtasks.get(identifier);
     }
 
-    public Epic findEpicsByIdentifier(int epicId) {
-        if (epics.get(epicId) != null) {
-            return epics.get(epicId);
-        } else {
-            System.out.println("Подзадачи с таким идентификатором не существует");
-            return null;
+    public Epic findEpicsByIdentifier(int identifier) {
+        if (epics.get(identifier) == null) {
+            System.out.println("Эпика с таким идентификатором не существует");
         }
+        return epics.get(identifier);
     }
 
     public void removeTaskByIdentifier(int identifier) {
@@ -166,34 +146,30 @@ public class Manager {
         }
     }
 
-    public void removeSubtaskByIdentifier(int identifier) { //проверить
-        if (subtasks.get(identifier) != null) {
-            try {
-                Epic epic = epics.get(subtasks.get(identifier).getEpicId());
-                epic.getSubtasks().remove(identifier);
-                subtasks.remove(identifier);
-                epic.epicStatus();
-            } catch (NullPointerException e) {
-                System.out.println("Ошибка, нет подзадачи с таким номером");
-            }
-        } else {
+    public void removeSubtaskByIdentifier(int identifier) {
+        try {
+            Epic epic = epics.get(subtasks.get(identifier).getEpicId());
+            epic.getSubtasks().remove(identifier);
+            subtasks.remove(identifier);
+            epic.epicStatus();
+        } catch (NullPointerException e) {
             System.out.println("Подзадачи с таким идентификатором не существует");
         }
     }
 
-    public void removeEpicByIdentifier(int epicId) {
-        if (epics.get(epicId) != null) {
-            subtasks.entrySet().removeIf(It-> It.getValue().getEpicId() == epicId);
-            epics.remove(epicId);
-            System.out.println("Эпик №" + epicId + " удалён");
+    public void removeEpicByIdentifier(int identifier) {
+        if (epics.get(identifier) != null) {
+            subtasks.entrySet().removeIf(It -> It.getValue().getEpicId() == identifier);
+            epics.remove(identifier);
+            System.out.println("Эпик №" + identifier + " удалён");
         } else {
             System.out.println("Эпика с таким идентификатором не существует");
         }
     }
 
-    public ArrayList<Subtask> listOfEpicSubtasks(int epicId) {
+    public ArrayList<Subtask> listOfEpicSubtasks(int identifier) {
         try {
-            Epic epic = epics.get(epicId);
+            Epic epic = epics.get(identifier);
             return new ArrayList<>(epic.getSubtasks().values());
         } catch (NullPointerException e) {
             System.out.println("Эпика с таким идентификатором не существует");

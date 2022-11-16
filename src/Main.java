@@ -108,7 +108,11 @@ public class Main {
                             status = scanner.nextLine();
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
-                            manager.updateSubtask(new Subtask(name, description, status, epicId));
+                            Subtask testSubtask = new Subtask (name, description,status,epicId);
+                            System.out.println("Введите номер подзадачи");
+                            identifier = Integer.parseInt(scanner.nextLine());
+                            testSubtask.setId(identifier);
+                            manager.updateSubtask(testSubtask);
                             break;
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");
@@ -151,7 +155,11 @@ public class Main {
                             name = scanner.nextLine();
                             System.out.println("Введите описание эпика");
                             description = scanner.nextLine();
-                            manager.updateEpics(new Epic (name, description));
+                            Epic testEpic = new Epic (name, description);
+                            System.out.println("Введите номер эпика");
+                            identifier = Integer.parseInt(scanner.nextLine());
+                            testEpic.setId(identifier);
+                            manager.updateEpics(testEpic);
                             break;
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");

@@ -14,7 +14,7 @@ public class Epic extends Task {
     public Epic(String name, String description) {
         this.name = name;
         this.description = description;
-        this.status = "NEW";
+        this.status = TaskStatus.NEW;
     }
 
     public void addSubtask(int identifier, Subtask subtask) {
@@ -26,20 +26,20 @@ public class Epic extends Task {
         int statusDone = 0;
         for (Subtask exp : subtasks.values()) {
             switch (exp.getStatus()) {
-                case "NEW":
+                case NEW:
                     statusNew++;
                     break;
-                case "DONE":
+                case DONE:
                     statusDone++;
                     break;
             }
         }
         if ((statusNew == subtasks.size() && (statusNew != 0)) || subtasks.size() == 0) {
-            status = "NEW";
+            status = TaskStatus.NEW;
         } else if (statusDone == subtasks.size()) {
-            status = "DONE";
+            status = TaskStatus.DONE;
         } else {
-            status = "IN_PROGRESS";
+            status = TaskStatus.IN_PROGRESS;
         }
     }
 

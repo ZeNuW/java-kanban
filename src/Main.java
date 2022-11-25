@@ -1,5 +1,8 @@
-import manager.Manager;
+import manager.HistoryManager;
+import manager.Managers;
+import manager.TaskManager;
 import tasks.*;
+
 import java.util.Scanner;
 
 public class Main {
@@ -8,10 +11,12 @@ public class Main {
 
         String name;
         String description;
-        String status;
+        String statusIn;
+        TaskStatus status;
 
         Scanner scanner = new Scanner(System.in);
-        Manager manager = new Manager();
+        TaskManager manager = Managers.getDefault();
+        HistoryManager history = Managers.getDefaultHistory();
         int identifier;
         int userInput;
         int epicId;
@@ -27,8 +32,10 @@ public class Main {
                     userInput = Integer.parseInt(scanner.nextLine());
                     switch (userInput) {
                         case 1: //для быстрой проверки, чтобы каждый раз не вбивать данные
-                            manager.addNewTask(new Task("Забрать справки", "Нужно пойти в поликлинику", "NEW"));
-                            manager.addNewTask(new Task("Забрать справки2", "Нужно пойти в поликлинику2", "DONE"));
+                            manager.addNewTask(new Task("Забрать справки",
+                                    "Нужно пойти в поликлинику", TaskStatus.NEW));
+                            manager.addNewTask(new Task("Забрать справки2",
+                                    "Нужно пойти в поликлинику2", TaskStatus.DONE));
                             break;
                         case 2:
                             System.out.println(manager.getTasks());
@@ -39,15 +46,31 @@ public class Main {
                         case 4:
                             System.out.println("Введите номер объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            System.out.println(manager.findTasksByIdentifier(identifier));
+                            System.out.println(manager.getTask(identifier));
                             break;
                         case 5: //ввод где всё вводится "вручную"
                             System.out.println("Введите название задачи");
                             name = scanner.nextLine();
                             System.out.println("Введите описание задачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите новый статус задачи");
-                            status = scanner.nextLine();
+                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
+                            status = null;
+                            while (status == null) {
+                                statusIn = scanner.nextLine();
+                                switch (statusIn) {
+                                    case "1":
+                                        status = TaskStatus.NEW;
+                                        break;
+                                    case "2":
+                                        status = TaskStatus.IN_PROGRESS;
+                                        break;
+                                    case "3":
+                                        status = TaskStatus.DONE;
+                                        break;
+                                    default:
+                                        System.out.println("ошибка...");
+                                }
+                            }
                             manager.addNewTask(new Task(name, description, status));
                             break;
                         case 6:
@@ -55,8 +78,24 @@ public class Main {
                             name = scanner.nextLine();
                             System.out.println("Введите описание задачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите статус задачи");
-                            status = scanner.nextLine();
+                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
+                            status = null;
+                            while (status == null) {
+                                statusIn = scanner.nextLine();
+                                switch (statusIn) {
+                                    case "1":
+                                        status = TaskStatus.NEW;
+                                        break;
+                                    case "2":
+                                        status = TaskStatus.IN_PROGRESS;
+                                        break;
+                                    case "3":
+                                        status = TaskStatus.DONE;
+                                        break;
+                                    default:
+                                        System.out.println("ошибка...");
+                                }
+                            }
                             Task testTask = new Task(name, description, status);
                             System.out.println("Введите номер задачи");
                             identifier = Integer.parseInt(scanner.nextLine());
@@ -66,7 +105,7 @@ public class Main {
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            manager.removeTaskByIdentifier(identifier);
+                            manager.removeTask(identifier);
                             break;
                         default:
                             System.out.println("Такой команды нет");
@@ -77,9 +116,12 @@ public class Main {
                     userInput = Integer.parseInt(scanner.nextLine());
                     switch (userInput) {
                         case 1:
-                            manager.addNewSubtask(new Subtask("Купить овощи", "Купить кабачки, огурцы, помидоры", "NEW",1));
-                            manager.addNewSubtask(new Subtask("Купить фрукты", "Купить яблоки, бананы", "DONE",1));
-                            manager.addNewSubtask(new Subtask("Собрать вещи", "Нужно забрать посуду и кухонный стол", "NEW",2));
+                            manager.addNewSubtask(new Subtask("Купить овощи",
+                                    "Купить кабачки, огурцы, помидоры", TaskStatus.NEW, 1));
+                            manager.addNewSubtask(new Subtask("Купить фрукты",
+                                    "Купить яблоки, бананы", TaskStatus.DONE, 1));
+                            manager.addNewSubtask(new Subtask("Собрать вещи",
+                                    "Нужно забрать посуду и кухонный стол", TaskStatus.NEW, 2));
                             break;
                         case 2:
                             System.out.println(manager.getSubtasks());
@@ -90,29 +132,61 @@ public class Main {
                         case 4:
                             System.out.println("Введите номер объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            System.out.println(manager.findSubtasksByIdentifier(identifier));
+                            System.out.println(manager.getSubtask(identifier));
                             break;
                         case 5:
                             System.out.println("Введите название подзадачи");
                             name = scanner.nextLine();
                             System.out.println("Введите описание подзадачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите статус подзадачи");
-                            status = scanner.nextLine();
+                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
+                            status = null;
+                            while (status == null) {
+                                statusIn = scanner.nextLine();
+                                switch (statusIn) {
+                                    case "1":
+                                        status = TaskStatus.NEW;
+                                        break;
+                                    case "2":
+                                        status = TaskStatus.IN_PROGRESS;
+                                        break;
+                                    case "3":
+                                        status = TaskStatus.DONE;
+                                        break;
+                                    default:
+                                        System.out.println("ошибка...");
+                                }
+                            }
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
-                            manager.addNewSubtask(new Subtask(name, description, status,epicId));
+                            manager.addNewSubtask(new Subtask(name, description, status, epicId));
                             break;
                         case 6:
                             System.out.println("Введите название задачи");
                             name = scanner.nextLine();
                             System.out.println("Введите описание задачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите статус задачи");
-                            status = scanner.nextLine();
+                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
+                            status = null;
+                            while (status == null) {
+                                statusIn = scanner.nextLine();
+                                switch (statusIn) {
+                                    case "1":
+                                        status = TaskStatus.NEW;
+                                        break;
+                                    case "2":
+                                        status = TaskStatus.IN_PROGRESS;
+                                        break;
+                                    case "3":
+                                        status = TaskStatus.DONE;
+                                        break;
+                                    default:
+                                        System.out.println("ошибка...");
+                                }
+                            }
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
-                            Subtask testSubtask = new Subtask (name, description,status,epicId);
+                            Subtask testSubtask = new Subtask(name, description, status, epicId);
                             System.out.println("Введите номер подзадачи");
                             identifier = Integer.parseInt(scanner.nextLine());
                             testSubtask.setId(identifier);
@@ -121,7 +195,7 @@ public class Main {
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            manager.removeSubtaskByIdentifier(identifier);
+                            manager.removeSubtask(identifier);
                             break;
                         default:
                             System.out.println("Такой команды нет");
@@ -145,7 +219,7 @@ public class Main {
                         case 4:
                             System.out.println("Введите номер объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            System.out.println(manager.findEpicsByIdentifier(identifier));
+                            System.out.println(manager.getEpic(identifier));
                             break;
                         case 5:
                             System.out.println("Введите название эпика");
@@ -159,7 +233,7 @@ public class Main {
                             name = scanner.nextLine();
                             System.out.println("Введите описание эпика");
                             description = scanner.nextLine();
-                            Epic testEpic = new Epic (name, description);
+                            Epic testEpic = new Epic(name, description);
                             System.out.println("Введите номер эпика");
                             identifier = Integer.parseInt(scanner.nextLine());
                             testEpic.setId(identifier);
@@ -168,7 +242,7 @@ public class Main {
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");
                             identifier = Integer.parseInt(scanner.nextLine());
-                            manager.removeEpicByIdentifier(identifier);
+                            manager.removeEpic(identifier);
                             break;
                         case 8:
                             System.out.println("Введите идентификатор эпика, подзадачи которого нужно вывести");
@@ -178,6 +252,9 @@ public class Main {
                         default:
                             System.out.println("Такой команды нет");
                     }
+                    break;
+                case 4:
+                    System.out.println(history.getHistory());
                     break;
                 default:
                     System.out.println("Такой команды нет");

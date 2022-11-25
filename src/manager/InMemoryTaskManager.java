@@ -1,29 +1,33 @@
 package manager;
 
 import tasks.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
+    HistoryManager history = Managers.getDefaultHistory();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int identifier = 0;
 
+    @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
+    @Override
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
 
+    @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
-    public void updateTask(Task task) { //предполагая, что на вход приходит Task с заданным id и во входных данных нет ошибок
+    @Override
+    public void updateTask(Task task) {
         if (tasks.size() == 0) {
             System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
@@ -37,7 +41,8 @@ public class Manager {
         }
     }
 
-    public void updateSubtask(Subtask subtask) { //предполагая, что на вход приходит Subtask с заданным id и во входных данных нет ошибок
+    @Override
+    public void updateSubtask(Subtask subtask) {
         if (subtasks.size() == 0) {
             System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
@@ -52,7 +57,8 @@ public class Manager {
         }
     }
 
-    public void updateEpics(Epic epic) { //предполагая, что на вход приходит Epic с заданным id и во входных данных нет ошибок
+    @Override
+    public void updateEpics(Epic epic) {
         if (epics.size() == 0) {
             System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
         } else {
@@ -65,6 +71,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void addNewTask(Task task) {
         if (task.getStatus() == null) {
             System.out.println("Задача не добавлена т.к некорректно введён статус задачи");
@@ -75,6 +82,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void addNewSubtask(Subtask subtask) {
         if (subtask.getStatus() == null) {
             System.out.println("Подзадача не добавлена т.к некорректно введён статус подзадачи");
@@ -91,17 +99,20 @@ public class Manager {
         }
     }
 
+    @Override
     public void addNewEpic(Epic epic) {
         identifier++;
         epic.setId(identifier);
         epics.put(identifier, epic);
     }
 
+    @Override
     public void deleteTasks() {
         tasks.clear();
         System.out.println("Все задачи удалены");
     }
 
+    @Override
     public void deleteSubtasks() {
         subtasks.clear();
         for (Epic epic : epics.values()) {
@@ -111,34 +122,45 @@ public class Manager {
         System.out.println("Все подзадачи удалены");
     }
 
+    @Override
     public void deleteEpics() {
         epics.clear();
         subtasks.clear();
         System.out.println("Все эпики удалены");
     }
 
-    public Task findTasksByIdentifier(int identifier) {
+    @Override
+    public Task getTask(int identifier) {
         if (tasks.get(identifier) == null) {
             System.out.println("Задачи с таким идентификатором не существует");
+        } else {
+            history.addHistory(tasks.get(identifier));
         }
         return tasks.get(identifier);
     }
 
-    public Subtask findSubtasksByIdentifier(int identifier) {
+    @Override
+    public Subtask getSubtask(int identifier) {
         if (subtasks.get(identifier) == null) {
             System.out.println("Подзадачи с таким идентификатором не существует");
+        } else {
+            history.addHistory(subtasks.get(identifier));
         }
         return subtasks.get(identifier);
     }
 
-    public Epic findEpicsByIdentifier(int identifier) {
+    @Override
+    public Epic getEpic(int identifier) {
         if (epics.get(identifier) == null) {
             System.out.println("Эпика с таким идентификатором не существует");
+        } else {
+            history.addHistory(epics.get(identifier));
         }
         return epics.get(identifier);
     }
 
-    public void removeTaskByIdentifier(int identifier) {
+    @Override
+    public void removeTask(int identifier) {
         if (tasks.get(identifier) != null) {
             tasks.remove(identifier);
             System.out.println("Задача №" + identifier + " удалена");
@@ -147,7 +169,8 @@ public class Manager {
         }
     }
 
-    public void removeSubtaskByIdentifier(int identifier) {
+    @Override
+    public void removeSubtask(int identifier) {
         try {
             Epic epic = epics.get(subtasks.get(identifier).getEpicId());
             epic.getSubtasks().remove(identifier);
@@ -158,7 +181,8 @@ public class Manager {
         }
     }
 
-    public void removeEpicByIdentifier(int identifier) {
+    @Override
+    public void removeEpic(int identifier) {
         if (epics.get(identifier) != null) {
             subtasks.entrySet().removeIf(It -> It.getValue().getEpicId() == identifier);
             epics.remove(identifier);
@@ -168,6 +192,7 @@ public class Manager {
         }
     }
 
+    @Override
     public ArrayList<Subtask> listOfEpicSubtasks(int identifier) {
         try {
             Epic epic = epics.get(identifier);

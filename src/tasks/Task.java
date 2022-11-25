@@ -6,8 +6,17 @@ public class Task {
 
     protected String name;
     protected String description;
-    protected String status;
+    protected TaskStatus status;
     protected int id;
+
+    public Task(String name, String description, TaskStatus status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
+
+    public Task() {
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -17,29 +26,12 @@ public class Task {
         return id;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
-    }
-
-    public Task(String name, String description, String status) {
-        this.name = name;
-        this.description = description;
-        this.status = taskStatus(status);
-    }
-
-    public Task() {
-    }
-
-    protected String taskStatus(String status) {
-        if ((status.equals("NEW")) || (status.equals("IN_PROGRESS")) || (status.equals("DONE"))) {
-            return status;
-        } else {
-            return null;
-        }
     }
 
     public String getName() {

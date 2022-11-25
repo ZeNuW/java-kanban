@@ -15,8 +15,8 @@ public class Main {
         TaskStatus status;
 
         Scanner scanner = new Scanner(System.in);
-        TaskManager manager = Managers.getDefault();
-        HistoryManager history = Managers.getDefaultHistory();
+        final TaskManager manager = Managers.getDefault();
+        final HistoryManager history = Managers.getDefaultHistory();
         int identifier;
         int userInput;
         int epicId;
@@ -33,9 +33,9 @@ public class Main {
                     switch (userInput) {
                         case 1: //для быстрой проверки, чтобы каждый раз не вбивать данные
                             manager.addNewTask(new Task("Забрать справки",
-                                    "Нужно пойти в поликлинику", TaskStatus.NEW));
+                                    "Нужно пойти в поликлинику"));
                             manager.addNewTask(new Task("Забрать справки2",
-                                    "Нужно пойти в поликлинику2", TaskStatus.DONE));
+                                    "Нужно пойти в поликлинику2"));
                             break;
                         case 2:
                             System.out.println(manager.getTasks());
@@ -71,7 +71,7 @@ public class Main {
                                         System.out.println("ошибка...");
                                 }
                             }
-                            manager.addNewTask(new Task(name, description, status));
+                            manager.addNewTask(new Task(name, description));
                             break;
                         case 6:
                             System.out.println("Введите название задачи");
@@ -96,10 +96,11 @@ public class Main {
                                         System.out.println("ошибка...");
                                 }
                             }
-                            Task testTask = new Task(name, description, status);
+                            Task testTask = new Task(name, description);
                             System.out.println("Введите номер задачи");
                             identifier = Integer.parseInt(scanner.nextLine());
                             testTask.setId(identifier);
+                            testTask.setStatus(status);
                             manager.updateTask(testTask);
                             break;
                         case 7:
@@ -117,11 +118,11 @@ public class Main {
                     switch (userInput) {
                         case 1:
                             manager.addNewSubtask(new Subtask("Купить овощи",
-                                    "Купить кабачки, огурцы, помидоры", TaskStatus.NEW, 1));
+                                    "Купить кабачки, огурцы, помидоры", 1));
                             manager.addNewSubtask(new Subtask("Купить фрукты",
-                                    "Купить яблоки, бананы", TaskStatus.DONE, 1));
+                                    "Купить яблоки, бананы", 1));
                             manager.addNewSubtask(new Subtask("Собрать вещи",
-                                    "Нужно забрать посуду и кухонный стол", TaskStatus.NEW, 2));
+                                    "Нужно забрать посуду и кухонный стол", 2));
                             break;
                         case 2:
                             System.out.println(manager.getSubtasks());
@@ -159,7 +160,7 @@ public class Main {
                             }
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
-                            manager.addNewSubtask(new Subtask(name, description, status, epicId));
+                            manager.addNewSubtask(new Subtask(name, description, epicId));
                             break;
                         case 6:
                             System.out.println("Введите название задачи");
@@ -186,10 +187,11 @@ public class Main {
                             }
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
-                            Subtask testSubtask = new Subtask(name, description, status, epicId);
+                            Subtask testSubtask = new Subtask(name, description, epicId);
                             System.out.println("Введите номер подзадачи");
                             identifier = Integer.parseInt(scanner.nextLine());
                             testSubtask.setId(identifier);
+                            testSubtask.setStatus(status);
                             manager.updateSubtask(testSubtask);
                             break;
                         case 7:
@@ -266,7 +268,8 @@ public class Main {
         System.out.println("0 - Выход\n" +
                 "1 - Операции с задачами\n" +
                 "2 - Операции с подзадачами\n" +
-                "3 - Операции с эпиками");
+                "3 - Операции с эпиками\n" +
+                "4 - История запросов");
     }
 
     public static void printMenuInCase() {

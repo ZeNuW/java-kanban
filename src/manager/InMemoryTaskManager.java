@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
-    HistoryManager history = Managers.getDefaultHistory();
+    private final HistoryManager history = Managers.getDefaultHistory();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
@@ -201,5 +201,5 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпика с таким идентификатором не существует");
             return null;
         }
-    }
+    } // не совсем понял комментарий по поводу getHistory(), он же находится в InMemoryHistoryManager, как сказано в ТЗ
 }

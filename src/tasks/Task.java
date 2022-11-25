@@ -4,18 +4,15 @@ import java.util.Objects;
 
 public class Task {
 
-    protected String name;
-    protected String description;
+    private String name;
+    private String description;
+    private int id;
     protected TaskStatus status;
-    protected int id;
 
-    public Task(String name, String description, TaskStatus status) {
+    public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.status = status;
-    }
-
-    public Task() {
+        status = TaskStatus.NEW;
     }
 
     public void setId(int id) {
@@ -54,7 +51,7 @@ public class Task {
     public String toString() {
         String result = "tasks.Task " + id + " {" +
                 "name='" + name + '\'';
-            result = result + ", description=" + description;
+        result = result + ", description=" + description;
         result = result + ", status=" + status + "}";
         return result + "\n";
     }

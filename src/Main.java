@@ -1,4 +1,3 @@
-import manager.HistoryManager;
 import manager.Managers;
 import manager.TaskManager;
 import tasks.*;
@@ -16,7 +15,6 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         final TaskManager manager = Managers.getDefault();
-        final HistoryManager history = Managers.getDefaultHistory();
         int identifier;
         int userInput;
         int epicId;
@@ -53,24 +51,6 @@ public class Main {
                             name = scanner.nextLine();
                             System.out.println("Введите описание задачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
-                            status = null;
-                            while (status == null) {
-                                statusIn = scanner.nextLine();
-                                switch (statusIn) {
-                                    case "1":
-                                        status = TaskStatus.NEW;
-                                        break;
-                                    case "2":
-                                        status = TaskStatus.IN_PROGRESS;
-                                        break;
-                                    case "3":
-                                        status = TaskStatus.DONE;
-                                        break;
-                                    default:
-                                        System.out.println("ошибка...");
-                                }
-                            }
                             manager.addNewTask(new Task(name, description));
                             break;
                         case 6:
@@ -140,24 +120,6 @@ public class Main {
                             name = scanner.nextLine();
                             System.out.println("Введите описание подзадачи");
                             description = scanner.nextLine();
-                            System.out.println("Введите  статус задачи: 1 - NEW, 2 - IN_PROGRESS, 3 - DONE");
-                            status = null;
-                            while (status == null) {
-                                statusIn = scanner.nextLine();
-                                switch (statusIn) {
-                                    case "1":
-                                        status = TaskStatus.NEW;
-                                        break;
-                                    case "2":
-                                        status = TaskStatus.IN_PROGRESS;
-                                        break;
-                                    case "3":
-                                        status = TaskStatus.DONE;
-                                        break;
-                                    default:
-                                        System.out.println("ошибка...");
-                                }
-                            }
                             System.out.println("Введите номер эпика к которому относится подзадача");
                             epicId = Integer.parseInt(scanner.nextLine());
                             manager.addNewSubtask(new Subtask(name, description, epicId));
@@ -256,7 +218,7 @@ public class Main {
                     }
                     break;
                 case 4:
-                    System.out.println(history.getHistory());
+                    System.out.println(manager.getHistory());
                     break;
                 default:
                     System.out.println("Такой команды нет");

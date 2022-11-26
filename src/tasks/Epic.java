@@ -13,7 +13,6 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description);
-        status = TaskStatus.NEW;
     }
 
     public void addSubtask(int identifier, Subtask subtask) {
@@ -34,11 +33,11 @@ public class Epic extends Task {
             }
         }
         if ((statusNew == subtasks.size() && (statusNew != 0)) || subtasks.size() == 0) {
-            status = TaskStatus.NEW;
+            setStatus(TaskStatus.NEW);
         } else if (statusDone == subtasks.size()) {
-            status = TaskStatus.DONE;
+            setStatus(TaskStatus.DONE);
         } else {
-            status = TaskStatus.IN_PROGRESS;
+            setStatus(TaskStatus.IN_PROGRESS);
         }
     }
 

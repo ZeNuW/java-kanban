@@ -1,8 +1,10 @@
 package manager;
 
 import tasks.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
@@ -201,5 +203,13 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпика с таким идентификатором не существует");
             return null;
         }
-    } // не совсем понял комментарий по поводу getHistory(), он же находится в InMemoryHistoryManager, как сказано в ТЗ
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return history.getHistory();
+    }
+    // Запутал немного видимо последний пункт ТЗ, что нужно действия с историей перенести.
+    // Спасибо за объяснение, понял чем будет полезен и удобен метод именно тут.
+    // Надеюсь реализовал правильно :)
 }

@@ -4,6 +4,7 @@ import tasks.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -110,13 +111,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
-        tasks.clear();
-        System.out.println("Все задачи удалены");
+        for (Iterator<Task> iterator = tasks.values().iterator(); iterator.hasNext(); ) {
+            Task value = iterator.next();
+            history.remove(value.getId());
+            iterator.remove();
+        }
     }
 
     @Override
     public void deleteSubtasks() {
-        subtasks.clear();
+        for (Iterator<Subtask> iterator = subtasks.values().iterator(); iterator.hasNext(); ) {
+            Subtask value = iterator.next();
+                history.remove(value.getId());
+                iterator.remove();
+        }
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             epic.epicStatus();
@@ -126,8 +134,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpics() {
-        epics.clear();
-        subtasks.clear();
+        for (Iterator<Epic> iterator = epics.values().iterator(); iterator.hasNext(); ) {
+            Epic value = iterator.next();
+            history.remove(value.getId());
+            iterator.remove();
+        }
+        deleteSubtasks();
         System.out.println("Все эпики удалены");
     }
 
@@ -136,7 +148,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasks.get(identifier) == null) {
             System.out.println("Задачи с таким идентификатором не существует");
         } else {
-            history.addHistory(tasks.get(identifier));
+            history.add(tasks.get(identifier));
         }
         return tasks.get(identifier);
     }
@@ -146,7 +158,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtasks.get(identifier) == null) {
             System.out.println("Подзадачи с таким идентификатором не существует");
         } else {
-            history.addHistory(subtasks.get(identifier));
+            history.add(subtasks.get(identifier));
         }
         return subtasks.get(identifier);
     }
@@ -156,7 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epics.get(identifier) == null) {
             System.out.println("Эпика с таким идентификатором не существует");
         } else {
-            history.addHistory(epics.get(identifier));
+            history.add(epics.get(identifier));
         }
         return epics.get(identifier);
     }
@@ -165,6 +177,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTask(int identifier) {
         if (tasks.get(identifier) != null) {
             tasks.remove(identifier);
+            history.remove(identifier);
             System.out.println("Задача №" + identifier + " удалена");
         } else {
             System.out.println("Задачи с таким идентификатором не существует");
@@ -178,6 +191,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtasks().remove(identifier);
             subtasks.remove(identifier);
             epic.epicStatus();
+            history.remove(identifier);
         } catch (NullPointerException e) {
             System.out.println("Подзадачи с таким идентификатором не существует");
         }
@@ -186,8 +200,15 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpic(int identifier) {
         if (epics.get(identifier) != null) {
-            subtasks.entrySet().removeIf(It -> It.getValue().getEpicId() == identifier);
+            for (Iterator<Subtask> iterator = subtasks.values().iterator(); iterator.hasNext(); ) {
+                Subtask value = iterator.next();
+                if (value.getEpicId() == identifier) {
+                    history.remove(value.getId());
+                    iterator.remove();
+                }
+            }
             epics.remove(identifier);
+            history.remove(identifier);
             System.out.println("Эпик №" + identifier + " удалён");
         } else {
             System.out.println("Эпика с таким идентификатором не существует");
@@ -209,7 +230,4 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return history.getHistory();
     }
-    // Запутал немного видимо последний пункт ТЗ, что нужно действия с историей перенести.
-    // Спасибо за объяснение, понял чем будет полезен и удобен метод именно тут.
-    // Надеюсь реализовал правильно :)
 }

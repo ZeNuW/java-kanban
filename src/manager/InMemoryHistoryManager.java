@@ -38,14 +38,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         public int size = 0;
 
         public Node<T> linkLast(T element) {
-            final Node<T> oldTail = tail;
             final Node<T> newNode = new Node<>(tail, element, null);
-            tail = newNode;
             if (head == null) {
                 head = newNode;
             } else {
-                oldTail.next = newNode;
+                tail.next = newNode;
             }
+            tail = newNode;
             size++;
             return tail;
         }

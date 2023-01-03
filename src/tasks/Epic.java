@@ -1,5 +1,7 @@
 package tasks;
 
+import manager.TaskType;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -13,6 +15,7 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description);
+        this.setType(TaskType.EPIC);
     }
 
     public void addSubtask(int identifier, Subtask subtask) {

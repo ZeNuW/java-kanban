@@ -8,11 +8,11 @@ import java.util.Iterator;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HistoryManager history = Managers.getDefaultHistory();
+    protected final HistoryManager history = Managers.getDefaultHistory();
+    protected int identifier = 0;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private int identifier = 0;
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -122,8 +122,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubtasks() {
         for (Iterator<Subtask> iterator = subtasks.values().iterator(); iterator.hasNext(); ) {
             Subtask value = iterator.next();
-                history.remove(value.getId());
-                iterator.remove();
+            history.remove(value.getId());
+            iterator.remove();
         }
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
@@ -145,9 +145,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int identifier) {
-        if (tasks.get(identifier) == null) {
-            System.out.println("Задачи с таким идентификатором не существует");
-        } else {
+        if (tasks.get(identifier) != null) {
             history.add(tasks.get(identifier));
         }
         return tasks.get(identifier);
@@ -155,9 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask getSubtask(int identifier) {
-        if (subtasks.get(identifier) == null) {
-            System.out.println("Подзадачи с таким идентификатором не существует");
-        } else {
+        if (subtasks.get(identifier) != null) {
             history.add(subtasks.get(identifier));
         }
         return subtasks.get(identifier);
@@ -165,9 +161,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic getEpic(int identifier) {
-        if (epics.get(identifier) == null) {
-            System.out.println("Эпика с таким идентификатором не существует");
-        } else {
+        if (epics.get(identifier) != null) {
             history.add(epics.get(identifier));
         }
         return epics.get(identifier);

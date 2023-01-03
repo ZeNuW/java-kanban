@@ -4,7 +4,6 @@ import tasks.Task;
 
 import java.util.*;
 
-
 public class InMemoryHistoryManager implements HistoryManager {
 
     private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
@@ -38,7 +37,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         public int size = 0;
 
         public Node<T> linkLast(T element) {
-            final Node<T> newNode = new Node<>(tail, element, null);
+            final Node<T> newNode = new Node<>(element, tail, null);
             if (head == null) {
                 head = newNode;
             } else {

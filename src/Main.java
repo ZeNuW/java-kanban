@@ -1,7 +1,8 @@
-import manager.Managers;
+import manager.FileBackedTasksManager;
 import manager.TaskManager;
 import tasks.*;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class Main {
@@ -14,7 +15,7 @@ public class Main {
         TaskStatus status;
 
         Scanner scanner = new Scanner(System.in);
-        final TaskManager manager = Managers.getDefault();
+        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/","history.csv"));
         int identifier;
         int userInput;
         int epicId;
@@ -98,9 +99,9 @@ public class Main {
                     switch (userInput) {
                         case 1:
                             manager.addNewSubtask(new Subtask("Купить овощи",
-                                    "Купить кабачки, огурцы, помидоры", 1));
+                                    "Купить кабачки и огурцы", 1));
                             manager.addNewSubtask(new Subtask("Купить фрукты",
-                                    "Купить яблоки, бананы", 1));
+                                    "Купить яблоки и бананы", 1));
                             manager.addNewSubtask(new Subtask("Собрать вещи",
                                     "Нужно забрать посуду и кухонный стол", 2));
                             break;

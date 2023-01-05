@@ -1,4 +1,4 @@
-package manager;
+package manager.history;
 
 public class Node<T> {
 

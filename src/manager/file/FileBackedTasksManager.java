@@ -1,19 +1,19 @@
-package manager;
+package manager.file;
 
+import manager.InMemoryTaskManager;
+import manager.history.HistoryManager;
 import tasks.*;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.*;
 
 
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
-    // main оставил свой, не стал делать проверку как в ТЗ, сделал всё в своём main
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    // не уверен, что у меня получилось хорошо раскидать всё по пакетам, но надеюсь что более-менее)
+    private final File file;
 
-    private final Path path;
-
-    public FileBackedTasksManager(Path path) {
-        this.path = path;
+    public FileBackedTasksManager(File file) {
+        this.file = file;
     }
 
     @Override
@@ -110,7 +110,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     public static FileBackedTasksManager loadFromFile(File file) {
-        FileBackedTasksManager btm = new FileBackedTasksManager(file.toPath());
+        FileBackedTasksManager btm = new FileBackedTasksManager(file);
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine();
             while (br.ready()) {
@@ -138,13 +138,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 btm.getEpic(id);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("Ошибка чтения файла", e);
         }
         return btm;
     }
 
     public void save() {
-        try (Writer fileWriter = new FileWriter(String.valueOf(path))) {
+        try (Writer fileWriter = new FileWriter(file)) {
             fileWriter.write("id,type,name,status,description,epic\n");
             ArrayList<Task> allTasks = new ArrayList<>();
             allTasks.addAll(getTasks());
@@ -157,19 +157,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             if (!history.getHistory().isEmpty()) {
                 fileWriter.write("\n" + historyToString(history));
             }
-			/*
-            По поводу history, у меня возникла проблема, если я создавал новый объект
-            private final HistoryManager history = Managers.getDefaultHistory();*
-            То история работала некорректно, т.к history были разные, с разным hashcode в InMemoryTaskManager и тут, пришлось сделать history
-            protected, но я так понимаю, решение не самое лучшее, т.к мы создавали Managers как раз для того, чтобы так не делать
-            Какое более верное решение должно быть? Надеюсь задал вопрос нормально. :)
-            Ещё, возможно, было бы лучше в файле разделять всё не через ",", а например через ";" т.к если в описании задачи будет
-            запятая, то будут ошибки, реализовал на запятых, но решил поинтересоваться, вдруг так лучше )
-
-            С наступившим новым годом!
-            */
         } catch (IOException e) {
-            throw new ManagerSaveException("Непредвиденная ошибка", e);
+            throw new ManagerSaveException("Ошибка записи файла", e);
         }
     }
 
@@ -193,31 +182,36 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return result + "\n";
     }
 
-    public Task fromString(String value) throws NumberFormatException {
+    public Task fromString(String value) {
         String[] split = value.split(",");
         // 0 = id 1 = type 2 = name 3 = status 4 = descr 5 = epicId //
         Task task = null;
         switch (split[1]) {
             case "TASK":
                 task = new Task(split[2], split[4]);
+                if (split[3].equals("NEW")) {
+                    task.setStatus(TaskStatus.NEW);
+                } else if (split[3].equals("IN_PROGRESS")) {
+                    task.setStatus(TaskStatus.IN_PROGRESS);
+                } else {
+                    task.setStatus(TaskStatus.DONE);
+                }
                 break;
             case "SUBTASK":
                 task = new Subtask(split[2], split[4], Integer.parseInt(split[5]));
+                if (split[3].equals("NEW")) {
+                    task.setStatus(TaskStatus.NEW);
+                } else if (split[3].equals("IN_PROGRESS")) {
+                    task.setStatus(TaskStatus.IN_PROGRESS);
+                } else {
+                    task.setStatus(TaskStatus.DONE);
+                }
                 break;
             case "EPIC":
                 task = new Epic(split[2], split[4]);
                 break;
         }
         Objects.requireNonNull(task).setId(Integer.parseInt(split[0]));
-        if (task.getType() == TaskType.TASK || task.getType() == TaskType.SUBTASK) {
-            if (split[3].equals("NEW")) {
-                task.setStatus(TaskStatus.NEW);
-            } else if (split[3].equals("IN_PROGRESS")) {
-                task.setStatus(TaskStatus.IN_PROGRESS);
-            } else {
-                task.setStatus(TaskStatus.DONE);
-            }
-        }
         return task;
     }
 

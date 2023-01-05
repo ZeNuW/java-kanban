@@ -1,4 +1,4 @@
-import manager.FileBackedTasksManager;
+import manager.file.FileBackedTasksManager;
 import manager.TaskManager;
 import tasks.*;
 
@@ -15,7 +15,7 @@ public class Main {
         TaskStatus status;
 
         Scanner scanner = new Scanner(System.in);
-        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/","history.csv"));
+        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/","manager.history.csv"));
         int identifier;
         int userInput;
         int epicId;

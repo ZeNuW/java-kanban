@@ -1,7 +1,5 @@
 package tasks;
 
-import manager.TaskType;
-
 import java.util.HashMap;
 import java.util.Objects;
 

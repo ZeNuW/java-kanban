@@ -13,9 +13,8 @@ public class Main {
         String description;
         String statusIn;
         TaskStatus status;
-
         Scanner scanner = new Scanner(System.in);
-        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/","manager.history.csv"));
+        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/", "history.csv"));
         int identifier;
         int userInput;
         int epicId;

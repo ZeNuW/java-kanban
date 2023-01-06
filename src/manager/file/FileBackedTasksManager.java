@@ -9,7 +9,6 @@ import java.util.*;
 
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    // не уверен, что у меня получилось хорошо раскидать всё по пакетам, но надеюсь что более-менее)
     private final File file;
 
     public FileBackedTasksManager(File file) {
@@ -72,23 +71,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     @Override
     public Task getTask(int identifier) {
-        Task temp = super.getTask(identifier);
+        Task task = super.getTask(identifier);
         save();
-        return temp;
+        return task;
     }
 
     @Override
     public Subtask getSubtask(int identifier) {
-        Subtask temp = super.getSubtask(identifier);
+        Subtask subtask = super.getSubtask(identifier);
         save();
-        return temp;
+        return subtask;
     }
 
     @Override
     public Epic getEpic(int identifier) {
-        Epic temp = super.getEpic(identifier);
+        Epic epic = super.getEpic(identifier);
         save();
-        return temp;
+        return epic;
     }
 
     @Override
@@ -163,19 +162,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public String toString(Task task) {
-        String result = task.getId() + ",";
-        switch (task.getType()) {
-            case TASK:
-                result = result + TaskType.TASK;
-                break;
-            case SUBTASK:
-                result = result + TaskType.SUBTASK;
-                break;
-            case EPIC:
-                result = result + TaskType.EPIC;
-                break;
-        }
-        result = result + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + ",";
+        String result = task.getId() + "," + task.getType() + "," + task.getName() + ","
+                + task.getStatus() + "," + task.getDescription() + ",";
         if (task.getType() == TaskType.SUBTASK) {
             result = result + ((Subtask) task).getEpicId();
         }
@@ -184,35 +172,29 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public Task fromString(String value) {
         String[] split = value.split(",");
-        // 0 = id 1 = type 2 = name 3 = status 4 = descr 5 = epicId //
-        Task task = null;
-        switch (split[1]) {
-            case "TASK":
-                task = new Task(split[2], split[4]);
-                if (split[3].equals("NEW")) {
-                    task.setStatus(TaskStatus.NEW);
-                } else if (split[3].equals("IN_PROGRESS")) {
-                    task.setStatus(TaskStatus.IN_PROGRESS);
-                } else {
-                    task.setStatus(TaskStatus.DONE);
-                }
-                break;
-            case "SUBTASK":
-                task = new Subtask(split[2], split[4], Integer.parseInt(split[5]));
-                if (split[3].equals("NEW")) {
-                    task.setStatus(TaskStatus.NEW);
-                } else if (split[3].equals("IN_PROGRESS")) {
-                    task.setStatus(TaskStatus.IN_PROGRESS);
-                } else {
-                    task.setStatus(TaskStatus.DONE);
-                }
-                break;
-            case "EPIC":
-                task = new Epic(split[2], split[4]);
-                break;
+        int id = Integer.parseInt(split[0]);
+        TaskType type = TaskType.valueOf(split[1]);
+        String name = split[2];
+        TaskStatus status = TaskStatus.valueOf(split[3]);
+        String description = split[4];
+        switch (type) {
+            case TASK:
+                Task task = new Task(name, description);
+                task.setId(id);
+                task.setStatus(status);
+                return task;
+            case SUBTASK:
+                int epicId = Integer.parseInt(split[5]);
+                task = new Subtask(name, description, epicId);
+                task.setId(id);
+                task.setStatus(status);
+                return task;
+            case EPIC:
+                task = new Epic(name, description);
+                task.setId(id);
+                return task;
         }
-        Objects.requireNonNull(task).setId(Integer.parseInt(split[0]));
-        return task;
+        return null;
     }
 
     public static String historyToString(HistoryManager manager) {

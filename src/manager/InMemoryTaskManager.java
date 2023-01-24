@@ -3,10 +3,7 @@ package manager;
 import manager.history.HistoryManager;
 import tasks.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected final HistoryManager history = Managers.getDefaultHistory();
@@ -14,6 +11,22 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>((o1, o2) -> {
+        if (o1.getStartTime() == null) {
+            return 1;
+        }
+        if (o1.getStartTime().isBefore(o2.getStartTime())) {
+            return -1;
+        } else if (o2.getStartTime().isBefore(o1.getStartTime())) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+    // вопрос возник, а нужно ли вообще эпики добавлять в дерево? (Временно убрал эпики, если я ошибся всё верну)
+    // если всё же нужно создавать с эпиками, то по какому принципу сортировать ещё TreeSet т.к тогда
+    // будут удаляться все первые подзадачи эпиков (когда делал с эпиками, сортировал ещё по id)
+    // пока что сделал поиск за O(n), пока буду работать над О(1)
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -32,74 +45,52 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        if (tasks.size() == 0) {
-            System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
-        } else {
-            try {
-                tasks.get(task.getId()).setName(task.getName());
-                tasks.get(task.getId()).setDescription(task.getDescription());
-                tasks.get(task.getId()).setStatus(task.getStatus());
-            } catch (NullPointerException e) {
-                System.out.println("Задачи с таким номером не существует");
-            }
+        if (tasks.size() != 0 && tasks.get(task.getId()) != null && checkTasksOverlap(task)) {
+            tasks.get(task.getId()).setName(task.getName());
+            tasks.get(task.getId()).setDescription(task.getDescription());
+            tasks.get(task.getId()).setStatus(task.getStatus());
         }
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        if (subtasks.size() == 0) {
-            System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
-        } else {
-            try {
-                subtasks.get(subtask.getId()).setName(subtask.getName());
-                subtasks.get(subtask.getId()).setDescription(subtask.getDescription());
-                subtasks.get(subtask.getId()).setStatus(subtask.getStatus());
-                epics.get(subtask.getEpicId()).epicStatus();
-            } catch (NullPointerException e) {
-                System.out.println("Подзадачи с таким номером не существует");
-            }
+        if (subtasks.size() != 0 && subtasks.get(subtask.getId()) != null && checkTasksOverlap(subtask)) {
+            subtasks.get(subtask.getId()).setName(subtask.getName());
+            subtasks.get(subtask.getId()).setDescription(subtask.getDescription());
+            subtasks.get(subtask.getId()).setStatus(subtask.getStatus());
+            epics.get(subtask.getEpicId()).epicStatus();
+            epics.get(subtask.getEpicId()).getEndTime();
         }
     }
 
     @Override
-    public void updateEpics(Epic epic) {
-        if (epics.size() == 0) {
-            System.out.println("Эпики пустые, перед обновлением нужно сначала загрузить списки");
-        } else {
-            try {
-                epics.get(epic.getId()).setName(epic.getName());
-                epics.get(epic.getId()).setDescription(epic.getDescription());
-            } catch (NullPointerException e) {
-                System.out.println("Эпика с таким номером не существует");
-            }
+    public void updateEpic(Epic epic) {
+        if (epics.size() != 0 && epics.get(epic.getId()) != null) {
+            epics.get(epic.getId()).setName(epic.getName());
+            epics.get(epic.getId()).setDescription(epic.getDescription());
         }
     }
 
     @Override
     public void addNewTask(Task task) {
-        if (task.getStatus() == null) {
-            System.out.println("Задача не добавлена т.к некорректно введён статус задачи");
-        } else {
+        if (task.getStatus() != null && checkTasksOverlap(task)) {
             identifier++;
             task.setId(identifier);
             tasks.put(identifier, task);
+            prioritizedTasks.add(task);
         }
     }
 
     @Override
     public void addNewSubtask(Subtask subtask) {
-        if (subtask.getStatus() == null) {
-            System.out.println("Подзадача не добавлена т.к некорректно введён статус подзадачи");
-        } else {
-            if (epics.get(subtask.getEpicId()) != null) {
-                identifier++;
-                subtasks.put(identifier, subtask);
-                subtasks.get(identifier).setId(identifier);
-                epics.get(subtask.getEpicId()).addSubtask(identifier, subtask);
-                epics.get(subtask.getEpicId()).epicStatus();
-            } else {
-                System.out.println("Эпика с таким идентификатором не существует.");
-            }
+        if (subtask.getStatus() != null && epics.get(subtask.getEpicId()) != null && checkTasksOverlap(subtask)) {
+            identifier++;
+            subtask.setId(identifier);
+            subtasks.put(identifier, subtask);
+            epics.get(subtask.getEpicId()).addSubtask(identifier, subtask);
+            epics.get(subtask.getEpicId()).epicStatus();
+            epics.get(subtask.getEpicId()).getEndTime();
+            prioritizedTasks.add(subtask);
         }
     }
 
@@ -108,6 +99,7 @@ public class InMemoryTaskManager implements TaskManager {
         identifier++;
         epic.setId(identifier);
         epics.put(identifier, epic);
+        //prioritizedTasks.add(epic);
     }
 
     @Override
@@ -129,8 +121,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             epic.epicStatus();
+            epic.getEndTime();
         }
-        System.out.println("Все подзадачи удалены");
     }
 
     @Override
@@ -141,7 +133,6 @@ public class InMemoryTaskManager implements TaskManager {
             iterator.remove();
         }
         deleteSubtasks();
-        System.out.println("Все эпики удалены");
     }
 
     @Override
@@ -186,6 +177,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtasks().remove(identifier);
             subtasks.remove(identifier);
             epic.epicStatus();
+            epic.getEndTime();
             history.remove(identifier);
         } catch (NullPointerException e) {
             System.out.println("Подзадачи с таким идентификатором не существует");
@@ -224,5 +216,27 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return history.getHistory();
+    }
+
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
+    private boolean checkTasksOverlap(Task task) { // false - есть пересечения, true - нет
+        boolean sort1;
+        if (task.getStartTime() == null) {
+            return true;
+        }
+        for (Task sortedTask : prioritizedTasks) {
+            sort1 = task.getStartTime().isAfter(sortedTask.getEndTime())
+                    || task.getStartTime().equals(sortedTask.getEndTime())
+                    || task.getEndTime().isBefore(sortedTask.getStartTime())
+                    || task.getEndTime().equals(sortedTask.getStartTime());
+            if (!sort1) {
+                return false;
+            }
+        }
+        return true;
     }
 }

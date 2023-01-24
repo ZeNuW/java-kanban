@@ -21,7 +21,8 @@ public class Subtask extends Task {
         String result = "tasks.Subtask " + getId() + " {" +
                 "name='" + getName() + '\'';
         result = result + ", description=" + getDescription();
-        result = result + ", status=" + getStatus() + "},";
+        result = result + ", status=" + getStatus() + ", startTime=" + getStartTime()
+                + " , duration=" + getDuration() + " }";
 
         return result + "\n";
     }

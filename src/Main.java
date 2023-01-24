@@ -201,7 +201,7 @@ public class Main {
                             System.out.println("Введите номер эпика");
                             identifier = Integer.parseInt(scanner.nextLine());
                             testEpic.setId(identifier);
-                            manager.updateEpics(testEpic);
+                            manager.updateEpic(testEpic);
                             break;
                         case 7:
                             System.out.println("Введите номер удаляемого объекта");

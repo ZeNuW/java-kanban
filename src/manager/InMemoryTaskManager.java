@@ -11,22 +11,18 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final TreeSet<Task> prioritizedTasks = new TreeSet<>((o1, o2) -> {
-        if (o1.getStartTime() == null) {
-            return 1;
-        }
-        if (o1.getStartTime().isBefore(o2.getStartTime())) {
-            return -1;
-        } else if (o2.getStartTime().isBefore(o1.getStartTime())) {
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(((Comparator<Task>) (o1, o2) -> {
+        if (o1.getStartTime() == null || o2.getStartTime() == null) {
             return 1;
         } else {
             return 0;
         }
-    });
-    // вопрос возник, а нужно ли вообще эпики добавлять в дерево? (Временно убрал эпики, если я ошибся всё верну)
-    // если всё же нужно создавать с эпиками, то по какому принципу сортировать ещё TreeSet т.к тогда
-    // будут удаляться все первые подзадачи эпиков (когда делал с эпиками, сортировал ещё по id)
-    // пока что сделал поиск за O(n), пока буду работать над О(1)
+    }).thenComparing(Task::getStartTime));
+    // Не знаю насколько я правильно компаратор сделал, но чисто по времени старта я сортировать не могу т.к. могут быть
+    // задачи с временем null, а их нужно поставить в конец
+    // А если использовать просто Comparator.comparing(Task::getStartTime), будет NullPointerException
+
+    // Я имел в виду время поиска пересечений, не до конца написал просто :).
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -99,25 +95,24 @@ public class InMemoryTaskManager implements TaskManager {
         identifier++;
         epic.setId(identifier);
         epics.put(identifier, epic);
-        //prioritizedTasks.add(epic);
     }
 
     @Override
     public void deleteTasks() {
-        for (Iterator<Task> iterator = tasks.values().iterator(); iterator.hasNext(); ) {
-            Task value = iterator.next();
-            history.remove(value.getId());
-            iterator.remove();
+        for (Task task : tasks.values()) {
+            history.remove(task.getId());
         }
+        tasks.clear();
+        //Вопрос по поводу этого исправления, разве не получается хуже, в плане эффективности?
+        //У меня теперь 2 цикла вместо 1, т.к clear по сути и есть тот же цикл удаления
     }
 
     @Override
     public void deleteSubtasks() {
-        for (Iterator<Subtask> iterator = subtasks.values().iterator(); iterator.hasNext(); ) {
-            Subtask value = iterator.next();
-            history.remove(value.getId());
-            iterator.remove();
+        for (Subtask subtask : subtasks.values()) {
+            history.remove(subtask.getId());
         }
+        subtasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             epic.epicStatus();
@@ -127,11 +122,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpics() {
-        for (Iterator<Epic> iterator = epics.values().iterator(); iterator.hasNext(); ) {
-            Epic value = iterator.next();
-            history.remove(value.getId());
-            iterator.remove();
+        for (Epic epic : epics.values()) {
+            history.remove(epic.getId());
         }
+        epics.clear();
         deleteSubtasks();
     }
 
@@ -164,9 +158,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasks.get(identifier) != null) {
             tasks.remove(identifier);
             history.remove(identifier);
-            System.out.println("Задача №" + identifier + " удалена");
-        } else {
-            System.out.println("Задачи с таким идентификатором не существует");
         }
     }
 
@@ -180,14 +171,14 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getEndTime();
             history.remove(identifier);
         } catch (NullPointerException e) {
-            System.out.println("Подзадачи с таким идентификатором не существует");
+            e.getStackTrace();
         }
     }
 
     @Override
     public void removeEpic(int identifier) {
         if (epics.get(identifier) != null) {
-            for (Iterator<Subtask> iterator = subtasks.values().iterator(); iterator.hasNext(); ) {
+            for (Iterator<Subtask> iterator = epics.get(identifier).getSubtasks().values().iterator(); iterator.hasNext(); ) {
                 Subtask value = iterator.next();
                 if (value.getEpicId() == identifier) {
                     history.remove(value.getId());
@@ -196,9 +187,6 @@ public class InMemoryTaskManager implements TaskManager {
             }
             epics.remove(identifier);
             history.remove(identifier);
-            System.out.println("Эпик №" + identifier + " удалён");
-        } else {
-            System.out.println("Эпика с таким идентификатором не существует");
         }
     }
 
@@ -208,7 +196,6 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(identifier);
             return new ArrayList<>(epic.getSubtasks().values());
         } catch (NullPointerException e) {
-            System.out.println("Эпика с таким идентификатором не существует");
             return null;
         }
     }

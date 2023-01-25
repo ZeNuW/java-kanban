@@ -8,6 +8,12 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
     @BeforeEach
     public void BeforeEach() {
         taskManager = new InMemoryTaskManager();
+        taskManager.addNewEpic(epic1); //1
+        taskManager.addNewEpic(epic2); //2
+        taskManager.addNewSubtask(subtask1); //3
+        taskManager.addNewSubtask(subtask2); //4
+        taskManager.addNewTask(task1); //5
+        taskManager.addNewTask(task2); //6
     }
 
     @Test

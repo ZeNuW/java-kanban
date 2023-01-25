@@ -22,14 +22,12 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     @BeforeEach
     public void BeforeEach() {
         taskManager = new FileBackedTasksManager(file);
-        task1.setStartTime(startTime);
-        task1.setDuration(120);
-        task2.setStartTime(startTime.plusHours(3));
-        task2.setDuration(180);
-        subtask1.setStartTime(startTime.plusHours(7));
-        subtask1.setDuration(120);
-        subtask2.setStartTime(startTime.plusHours(10));
-        subtask2.setDuration(180);
+        taskManager.addNewEpic(epic1);
+        taskManager.addNewEpic(epic2);
+        taskManager.addNewSubtask(subtask1);
+        taskManager.addNewSubtask(subtask2);
+        taskManager.addNewTask(task1);
+        taskManager.addNewTask(task2);
     }
 
     @Test
@@ -160,7 +158,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     @Test
     public void loadFromFile() {
         try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write("id,type,name,status,description,epic\n");
+            fileWriter.write("id,type,name,status,description,startTime,duration,epic\n");
             fileWriter.write("1,TASK,Task1,NEW,descriptionTask1,23.01.2023; 10:00,120,\n");
             fileWriter.write("2,TASK,Task2,DONE,descriptionTask2,23.01.2023; 12:00,180,\n");
         } catch (IOException e) {
@@ -181,13 +179,9 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @Test
     public void save() {
-        taskManager.addNewEpic(epic1);
-        taskManager.addNewSubtask(subtask1);
-        taskManager.addNewSubtask(subtask2);
-        taskManager.addNewTask(task1);
-        taskManager.addNewTask(task2);
         List<Task> allTasksTrue = new ArrayList<>();
         allTasksTrue.add(epic1);
+        allTasksTrue.add(epic2);
         allTasksTrue.add(subtask1);
         allTasksTrue.add(subtask2);
         allTasksTrue.add(task1);
@@ -198,7 +192,6 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         allTasks.addAll(taskManager.getEpics());
         allTasks.addAll(taskManager.getSubtasks());
         allTasks.addAll(taskManager.getTasks());
-        System.out.println(allTasks);
         for (Task task : allTasksTrue) {
             assertEquals(allTasksTrue.get(task.getId() - 1).toString(),
                     allTasks.get(task.getId() - 1).toString(), "Задачи не совпадают");
@@ -207,18 +200,10 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @Test
     public void toStringTest() {
-        Epic tEpic1 = new Epic("Epic1", "descriptionEpic1");
-        tEpic1.setId(1);
-        Subtask tSubtask1 = new Subtask("Subtask1", "descriptionSubtask1", 1);
-        tSubtask1.setId(2);
-        tSubtask1.setStartTime(startTime);
-        tSubtask1.setDuration(120);
-        taskManager.addNewEpic(tEpic1);
-        taskManager.addNewSubtask(tSubtask1);
-        String trueS1 = "1,EPIC,Epic1,NEW,descriptionEpic1,23.01.2023; 10:00,120,\n";
-        String trueS2 = "2,SUBTASK,Subtask1,NEW,descriptionSubtask1,23.01.2023; 10:00,120,1\n";
-        String s1 = taskManager.toString(tEpic1);
-        String s2 = taskManager.toString(tSubtask1);
+        String trueS1 = "1,EPIC,Epic1,NEW,descriptionEpic1,23.01.2023; 10:00,300,\n";
+        String trueS2 = "3,SUBTASK,Subtask1,NEW,descriptionSubtask1,23.01.2023; 10:00,120,1\n";
+        String s1 = taskManager.toString(epic1);
+        String s2 = taskManager.toString(subtask1);
         assertEquals(trueS1, s1, "Строки не совпадают");
         assertEquals(trueS2, s2, "Строки не совпадают");
     }

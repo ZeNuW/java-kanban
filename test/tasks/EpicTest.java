@@ -18,21 +18,20 @@ class EpicTest {
     @BeforeEach
     public void BeforeEach() {
         taskManager = new InMemoryTaskManager();
+        subtask1.setStartTime(startTime);
+        subtask1.setDuration(120);
+        subtask2.setStartTime(startTime.plusHours(3));
+        subtask2.setDuration(180);
+        taskManager.addNewEpic(epic);
     }
 
     @Test
     public void EpicShouldBeNewWhenIsEmpty() {
-        taskManager.addNewEpic(epic);
         assertEquals(TaskStatus.NEW, epic.getStatus());
     }
 
     @Test
     public void EpicShouldBeNewWhenAllSubtaskIsNew() {
-        taskManager.addNewEpic(epic);
-        subtask1.setStartTime(startTime);
-        subtask1.setDuration(120);
-        subtask2.setStartTime(startTime.plusHours(3));
-        subtask2.setDuration(180);
         taskManager.addNewSubtask(subtask1);
         taskManager.addNewSubtask(subtask2);
         assertEquals(TaskStatus.NEW, epic.getStatus());
@@ -40,13 +39,8 @@ class EpicTest {
 
     @Test
     public void EpicShouldBeDoneWhenAllSubtaskIsDone() {
-        taskManager.addNewEpic(epic);
         subtask1.setStatus(TaskStatus.DONE);
         subtask2.setStatus(TaskStatus.DONE);
-        subtask1.setStartTime(startTime);
-        subtask1.setDuration(120);
-        subtask2.setStartTime(startTime.plusHours(3));
-        subtask2.setDuration(180);
         taskManager.addNewSubtask(subtask1);
         taskManager.addNewSubtask(subtask2);
         assertEquals(TaskStatus.DONE, epic.getStatus());
@@ -54,12 +48,7 @@ class EpicTest {
 
     @Test
     public void EpicShouldBeInProgressWhenAllSubtaskIsNewAndDone() {
-        taskManager.addNewEpic(epic);
         subtask1.setStatus(TaskStatus.DONE);
-        subtask1.setStartTime(startTime);
-        subtask1.setDuration(120);
-        subtask2.setStartTime(startTime.plusHours(3));
-        subtask2.setDuration(180);
         taskManager.addNewSubtask(subtask1);
         taskManager.addNewSubtask(subtask2);
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());
@@ -67,13 +56,8 @@ class EpicTest {
 
     @Test
     public void EpicShouldBeInProgressWhenAllSubtaskIsInProgress() {
-        taskManager.addNewEpic(epic);
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
         subtask2.setStatus(TaskStatus.IN_PROGRESS);
-        subtask1.setStartTime(startTime);
-        subtask1.setDuration(120);
-        subtask2.setStartTime(startTime.plusHours(3));
-        subtask2.setDuration(180);
         taskManager.addNewSubtask(subtask1);
         taskManager.addNewSubtask(subtask2);
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());

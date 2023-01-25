@@ -13,13 +13,23 @@ public class Task {
     private TaskStatus status;
     private TaskType type;
 
-
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         status = TaskStatus.NEW;
         this.type = TaskType.TASK;
     }
+
+    public Task(String name, String description, int id, TaskType type, TaskStatus status, LocalDateTime startTime, int duration) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.type = type;
+        this.id = id;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
+
 
     public void setDuration(int duration) {
         this.duration = duration;

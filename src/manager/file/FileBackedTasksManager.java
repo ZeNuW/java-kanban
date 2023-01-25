@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private final File file;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy; HH:mm");
@@ -146,13 +145,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public void save() {
+        ArrayList<Task> allTasks = new ArrayList<>();
+        allTasks.addAll(getTasks());
+        allTasks.addAll(getSubtasks());
+        allTasks.addAll(getEpics());
+        allTasks.sort(Comparator.comparingInt(Task::getId));
         try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write("id,type,name,status,description,epic\n");
-            ArrayList<Task> allTasks = new ArrayList<>();
-            allTasks.addAll(getTasks());
-            allTasks.addAll(getSubtasks());
-            allTasks.addAll(getEpics());
-            allTasks.sort(Comparator.comparingInt(Task::getId));
+            fileWriter.write("id,type,name,status,description,startTime,duration,epic\n");
             for (Task task : allTasks) {
                 fileWriter.write(toString(task));
             }
@@ -170,7 +169,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         if (task.getStartTime() != null) {
             result = result + "," + task.getStartTime().format(formatter);
         } else {
-            result = result + ", ";
+            result = result + ", null";
         }
         result = result + "," + task.getDuration() + ",";
         if (task.getType() == TaskType.SUBTASK) {
@@ -186,28 +185,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String name = split[2];
         TaskStatus status = TaskStatus.valueOf(split[3]);
         String description = split[4];
-        LocalDateTime startTime = LocalDateTime.parse(split[5],formatter);
+        LocalDateTime startTime = LocalDateTime.parse(split[5], formatter);
         int duration = Integer.parseInt(split[6]);
         switch (type) {
             case TASK:
-                Task task = new Task(name, description);
-                task.setId(id);
-                task.setStatus(status);
-                task.setStartTime(startTime);
-                task.setDuration(duration);
-                return task;
+                return new Task(name,description,id,type,status,startTime,duration);
             case SUBTASK:
                 int epicId = Integer.parseInt(split[7]);
-                task = new Subtask(name, description,epicId);
-                task.setId(id);
-                task.setStatus(status);
-                task.setStartTime(startTime);
-                task.setDuration(duration);
-                return task;
+                return new Subtask(name,description,id,type,status,startTime,duration,epicId);
             case EPIC:
-                task = new Epic(name, description);
-                task.setId(id);
-                return task;
+                Epic epic = new Epic(name, description);
+                epic.setId(id);
+                return epic;
         }
         return null;
     }

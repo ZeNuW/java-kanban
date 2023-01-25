@@ -50,9 +50,12 @@ public class Epic extends Task {
     public String toString() {
         String result = "tasks.Epic " + getId() + " {" +
                 "name='" + getName() + '\'';
-        result = result + ", description=" + getDescription();
-        result = result + ", status=" + getStatus() + ", startTime=" + getStartTime()
-                + " , duration=" + getDuration() + " }";
+        result = result + ", description=" + getDescription() + ", status=" + getStatus();
+        if (getStartTime() == LocalDateTime.MAX) {
+            result = result + ", startTime=null" + " , duration=" + getDuration() + " }";
+        } else {
+            result = result + ", startTime=" + getStartTime() + " , duration=" + getDuration() + " }";
+        }
         return result + "\n";
     }
 
@@ -73,13 +76,16 @@ public class Epic extends Task {
     @Override
     public LocalDateTime getEndTime() {
         if (subtasks.isEmpty()) {
-            setStartTime(null);
             setDuration(0);
-            endTime = null;
+            endTime = LocalDateTime.MIN;
+            setStartTime(LocalDateTime.MAX);
             return null;
         }
         int epicDuration = 0;
         for (Subtask subtask : subtasks.values()) {
+            if (subtask.getStartTime() == null) {
+                continue;
+            }
             epicDuration += subtask.getDuration();
             if (getStartTime().isAfter(subtask.getStartTime())) {
                 setStartTime(subtask.getStartTime());

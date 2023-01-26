@@ -52,9 +52,9 @@ public class Epic extends Task {
                 "name='" + getName() + '\'';
         result = result + ", description=" + getDescription() + ", status=" + getStatus();
         if (getStartTime() == LocalDateTime.MAX) {
-            result = result + ", startTime=null" + " , duration=" + getDuration() + " }";
+            result = result + ", startTime=null" + ", duration=" + getDuration() + " }";
         } else {
-            result = result + ", startTime=" + getStartTime() + " , duration=" + getDuration() + " }";
+            result = result + ", startTime=" + getStartTime() + ", duration=" + getDuration() + " }";
         }
         return result + "\n";
     }

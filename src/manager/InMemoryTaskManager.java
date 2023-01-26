@@ -18,11 +18,6 @@ public class InMemoryTaskManager implements TaskManager {
             return 0;
         }
     }).thenComparing(Task::getStartTime));
-    // Не знаю насколько я правильно компаратор сделал, но чисто по времени старта я сортировать не могу т.к. могут быть
-    // задачи с временем null, а их нужно поставить в конец
-    // А если использовать просто Comparator.comparing(Task::getStartTime), будет NullPointerException
-
-    // Я имел в виду время поиска пересечений, не до конца написал просто :).
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -103,8 +98,6 @@ public class InMemoryTaskManager implements TaskManager {
             history.remove(task.getId());
         }
         tasks.clear();
-        //Вопрос по поводу этого исправления, разве не получается хуже, в плане эффективности?
-        //У меня теперь 2 цикла вместо 1, т.к clear по сути и есть тот же цикл удаления
     }
 
     @Override
@@ -210,7 +203,7 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritizedTasks;
     }
 
-    private boolean checkTasksOverlap(Task task) { // false - есть пересечения, true - нет
+    private boolean checkTasksOverlap(Task task) {
         boolean sort1;
         if (task.getStartTime() == null) {
             return true;

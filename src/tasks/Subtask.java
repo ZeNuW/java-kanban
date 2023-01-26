@@ -29,7 +29,7 @@ public class Subtask extends Task {
                 "name='" + getName() + '\'';
         result = result + ", description=" + getDescription();
         result = result + ", status=" + getStatus() + ", startTime=" + getStartTime()
-                + " , duration=" + getDuration() + " }";
+                + ", duration=" + getDuration() + " }";
 
         return result + "\n";
     }

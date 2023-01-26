@@ -7,6 +7,7 @@ import tasks.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -185,7 +186,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String name = split[2];
         TaskStatus status = TaskStatus.valueOf(split[3]);
         String description = split[4];
-        LocalDateTime startTime = LocalDateTime.parse(split[5], formatter);
+        LocalDateTime startTime;
+        try {
+            startTime = LocalDateTime.parse(split[5], formatter);
+        } catch (DateTimeParseException e) {
+            startTime = null;
+        }
         int duration = Integer.parseInt(split[6]);
         switch (type) {
             case TASK:

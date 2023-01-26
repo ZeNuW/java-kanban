@@ -96,7 +96,7 @@ public class Task {
         String result = "tasks.Task " + id + " {" +
                 "name='" + name + '\'';
         result = result + ", description=" + description + ", status=" + status
-                + ", startTime=" + startTime + " , duration=" + duration + " }";
+                + ", startTime=" + startTime + ", duration=" + duration + " }";
         return result + "\n";
     }
 

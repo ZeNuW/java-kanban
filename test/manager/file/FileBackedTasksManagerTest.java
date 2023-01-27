@@ -13,14 +13,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
 
     private final LocalDateTime startTime = LocalDateTime.of(2023, 1, 23, 10, 0);
     private static final File file = new File("test/", "history.csv");
 
+    //Что-то я поспешил, надеюсь все теперь сделано верно)
     @BeforeEach
     public void BeforeEach() {
         taskManager = new FileBackedTasksManager(file);
@@ -30,26 +30,11 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.addNewSubtask(subtask2);
         taskManager.addNewTask(task1);
         taskManager.addNewTask(task2);
-        try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write("id,type,name,status,description,startTime,duration,epic\n");
-            fileWriter.write("1,EPIC,Epic1,NEW,descriptionEpic1,23.01.2023; 10:00,300,\n");
-            fileWriter.write("2,EPIC,Epic2,NEW,descriptionEpic2,31.12.+999999999; 23:59,0,\n");
-            fileWriter.write("3,SUBTASK,Subtask1,NEW,descriptionSubtask1,23.01.2023; 10:00,120,1\n");
-            fileWriter.write("4,SUBTASK,Subtask2,NEW,descriptionSubtask2,23.01.2023; 13:00,180,1\n");
-            fileWriter.write("5,TASK,Task1,NEW,descriptionTask1,23.01.2023; 17:00,120,\n");
-            fileWriter.write("6,TASK,Task2,NEW,descriptionTask2,23.01.2023; 20:00,180,\n");
-            fileWriter.write("\n");
-            fileWriter.write("3,4,2,1,5");
-        } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка записи файла", e);
-        }
     }
 
     @AfterAll
     public static void AfterAll() {
-        if (file.delete()) {
-            System.out.println("Файл удалён");
-        }
+        assertTrue(file.delete(),"Файл не был удалён");
     }
 
     @Test
@@ -179,6 +164,11 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @Test
     public void loadFromFile() {
+        taskManager.getSubtask(3);
+        taskManager.getSubtask(4);
+        taskManager.getEpic(2);
+        taskManager.getEpic(1);
+        taskManager.getTask(5);
         FileBackedTasksManager loadFromFile = FileBackedTasksManager.loadFromFile(file);
         assertNotNull(loadFromFile.getTasks(), "Задачи пустые");
         assertNotNull(loadFromFile.getSubtasks(), "Задачи пустые");
@@ -186,11 +176,6 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         assertEquals(taskManager.getTasks(), loadFromFile.getTasks(), "Задачи не совпадают");
         assertEquals(taskManager.getSubtasks(), loadFromFile.getSubtasks(), "Задачи не совпадают");
         assertEquals(taskManager.getEpics(), loadFromFile.getEpics(), "Задачи не совпадают");
-        taskManager.getSubtask(3);
-        taskManager.getSubtask(4);
-        taskManager.getEpic(2);
-        taskManager.getEpic(1);
-        taskManager.getTask(5);
         assertEquals(taskManager.getHistory(), loadFromFile.getHistory(), "История не совпадает");
         assertEquals(new ArrayList<>(taskManager.getPrioritizedTasks()), new ArrayList<>(loadFromFile.getPrioritizedTasks()),
                 "Сортировка по приоритету не совпадает");

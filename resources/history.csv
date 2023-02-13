@@ -3,5 +3,7 @@ id,type,name,status,description,startTime,duration,epic
 2,EPIC,Epic2,NEW,descriptionEpic2,31.12.+999999999; 23:59,0,
 3,SUBTASK,Subtask1,NEW,descriptionSubtask1,23.01.2023; 10:00,120,1
 4,SUBTASK,Subtask2,NEW,descriptionSubtask2,23.01.2023; 13:00,180,1
-5,TASK,Task1,NEW,descriptionTask1,23.01.2023; 17:00,120,
-6,TASK,Task2,NEW,descriptionTask2,23.01.2023; 20:00,180,
+6,TASK,Забрать справки2_,NEW,Нужно пойти в поликлинику2, null,0,
+7,TASK,Забрать справки,NEW,Нужно пойти в поликлинику, null,0,
+
+3,6,7

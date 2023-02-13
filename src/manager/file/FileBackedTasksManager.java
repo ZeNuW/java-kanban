@@ -121,7 +121,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     break;
                 }
                 Task task = btm.fromString(line);
-                btm.identifier = task.getId() - 1;
+                btm.setIdentifier(task.getId() - 1);
+                //btm.identifier = task.getId() - 1;
                 switch (task.getType()) {
                     case TASK:
                         btm.addNewTask(task);

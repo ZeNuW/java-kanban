@@ -1,20 +1,24 @@
-import manager.file.FileBackedTasksManager;
+import server.HttpTaskServer;
+import server.KVServer;
+import manager.Managers;
 import manager.TaskManager;
 import tasks.*;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        new KVServer().start();
+        new HttpTaskServer().start();
 
         String name;
         String description;
         String statusIn;
         TaskStatus status;
         Scanner scanner = new Scanner(System.in);
-        final TaskManager manager = FileBackedTasksManager.loadFromFile(new File("resources/", "history.csv"));
+        final TaskManager manager = Managers.getDefault();
         int identifier;
         int userInput;
         int epicId;
@@ -219,6 +223,9 @@ public class Main {
                     break;
                 case 4:
                     System.out.println(manager.getHistory());
+                    break;
+                case 5:
+                    System.out.println(manager.getPrioritizedTasks());
                     break;
                 default:
                     System.out.println("Такой команды нет");

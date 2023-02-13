@@ -20,7 +20,6 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     private final LocalDateTime startTime = LocalDateTime.of(2023, 1, 23, 10, 0);
     private static final File file = new File("test/", "history.csv");
 
-    //Что-то я поспешил, надеюсь все теперь сделано верно)
     @BeforeEach
     public void BeforeEach() {
         taskManager = new FileBackedTasksManager(file);

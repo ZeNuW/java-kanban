@@ -16,8 +16,8 @@ public class Epic extends Task {
     public Epic(String name, String description) {
         super(name, description);
         this.setType(TaskType.EPIC);
-        endTime = LocalDateTime.MIN;
-        setStartTime(LocalDateTime.MAX);
+        endTime = null;
+        setStartTime(null);
     }
 
     public void addSubtask(int identifier, Subtask subtask) {
@@ -77,11 +77,13 @@ public class Epic extends Task {
     public LocalDateTime getEndTime() {
         if (subtasks.isEmpty()) {
             setDuration(0);
-            endTime = LocalDateTime.MIN;
-            setStartTime(LocalDateTime.MAX);
-            return null;
+            endTime = null;
+            setStartTime(null);
+            return endTime;
         }
         int epicDuration = 0;
+        endTime = LocalDateTime.MIN;
+        setStartTime(LocalDateTime.MAX);
         for (Subtask subtask : subtasks.values()) {
             if (subtask.getStartTime() == null) {
                 continue;
@@ -95,6 +97,10 @@ public class Epic extends Task {
             }
         }
         setDuration(epicDuration);
+        if (endTime == LocalDateTime.MAX && getStartTime() == LocalDateTime.MAX) {
+            endTime = null;
+            setStartTime(null);
+        }
         return endTime;
     }
 }

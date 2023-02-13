@@ -7,7 +7,8 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected final HistoryManager history = Managers.getDefaultHistory();
-    protected int identifier = 0;
+
+    private int identifier = 0;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
@@ -214,9 +215,13 @@ public class InMemoryTaskManager implements TaskManager {
                     || task.getEndTime().isBefore(sortedTask.getStartTime())
                     || task.getEndTime().equals(sortedTask.getStartTime());
             if (!sort1) {
-                return false;
+                return task.getId() == sortedTask.getId(); // в случае обновления задачи
             }
         }
         return true;
+    }
+
+    public void setIdentifier(int identifier) {
+        this.identifier = identifier;
     }
 }

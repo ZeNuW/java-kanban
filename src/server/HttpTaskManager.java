@@ -24,6 +24,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
     public HttpTaskManager(String url) {
         super(null);
         client = new KVTaskClient(url);
+        loadFromServer();
     }
 
     @Override
@@ -34,18 +35,13 @@ public class HttpTaskManager extends FileBackedTasksManager {
         client.put("history", gson.toJson(getHistory()));
     }
 
-    public static HttpTaskManager load(String url) {
-        /*
-        Не совсем понял к чему тут метод load, т.к вроде при старте сервера у нас всё будет пустое, ибо data с KVServer
-        нигде не храниться ну и соответственно нечего считывать, не уверен, что это всё вообще правильно работает.
-        Поэтому у меня и вопрос, нужен ли этот метод? И где его применять в таком случае.
-         */
-        HttpTaskManager htm = new HttpTaskManager(url);
+    private void loadFromServer() {
+        // вроде как разобрался, надеюсь теперь всё корректно и соответствует ТЗ
         List<Task> allTasks = new ArrayList<>();
-        String tasksString = htm.client.load("tasks");
-        String subtasksString = htm.client.load("subtasks");
-        String epicsString = htm.client.load("epics");
-        String historyString = htm.client.load("history");
+        String tasksString = client.load("tasks");
+        String subtasksString = client.load("subtasks");
+        String epicsString = client.load("epics");
+        String historyString = client.load("history");
         if (tasksString != null) {
             List<Task> tasksList = gson.fromJson(tasksString,
                     TypeToken.getParameterized(ArrayList.class, Task.class).getType());
@@ -63,29 +59,27 @@ public class HttpTaskManager extends FileBackedTasksManager {
         }
         allTasks.sort(Comparator.comparingInt(Task::getId));
         for (Task task : allTasks) {
-            htm.setIdentifier(task.getId() - 1);
+            setIdentifier(task.getId() - 1);
             switch (task.getType()) {
                 case TASK:
-                    htm.addNewTask(task);
+                    addNewTask(task);
                     break;
                 case SUBTASK:
-                    htm.addNewSubtask((Subtask) task);
+                    addNewSubtask((Subtask) task);
                     break;
                 case EPIC:
-                    htm.addNewEpic((Epic) task);
+                    addNewEpic((Epic) task);
                     break;
             }
         }
-
         if (historyString != null) {
             List<Task> historyList = gson.fromJson(historyString,
                     TypeToken.getParameterized(ArrayList.class, Task.class).getType());
             for (Task task : historyList) {
-                htm.getTask(task.getId());
-                htm.getSubtask(task.getId());
-                htm.getEpic(task.getId());
+                getTask(task.getId());
+                getSubtask(task.getId());
+                getEpic(task.getId());
             }
         }
-        return htm;
     }
 }

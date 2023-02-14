@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-
 public class HttpTaskServer {
 
     private final HttpServer server;
@@ -27,12 +26,6 @@ public class HttpTaskServer {
             .setPrettyPrinting()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
             .create();
-
-    /*
-    Сделано ужасно, я понимаю, но к сожалению, у меня были очень трудные недели, я немного потерялся и успел слепить только вот такую штуку.
-    До меня не дошло как можно унифицировать всё это, чтобы не писать однотипные хендлеры, хотя бы для task/subtask/epic
-    Есть вообще такая возможность? А то это дублирование кода совсем некрасиво выглядит
-     */
 
     public HttpTaskServer() throws IOException {
         HttpTaskManager taskManager = (HttpTaskManager) Managers.getDefault();

@@ -329,8 +329,7 @@ public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         taskManager.getEpic(2);
         taskManager.getTask(5);
         taskManager.getSubtask(3);
-
-        HttpTaskManager newManager = HttpTaskManager.load(url);
+        HttpTaskManager newManager = new HttpTaskManager(url); //url - аналогичен url taskManager
         assertEquals(taskManager.getTasks(),newManager.getTasks(),"Задачи не совпадают");
         assertEquals(taskManager.getSubtasks(),newManager.getSubtasks(),"Задачи не совпадают");
         assertEquals(taskManager.getEpics(),newManager.getEpics(),"Задачи не совпадают");
@@ -338,6 +337,5 @@ public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         assertEquals(taskManager.getHistory(),newManager.getHistory(),"Задачи не совпадают");
         assertEquals( new ArrayList<>(taskManager.getPrioritizedTasks()),
                 new ArrayList<>(newManager.getPrioritizedTasks()),"Задачи не совпадают");
-
     }
 }
